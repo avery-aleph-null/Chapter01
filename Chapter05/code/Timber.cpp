@@ -1,10 +1,9 @@
 // Include important C++ libraries here
 #include <SFML/Graphics.hpp>
 #include <SFML/Audio.hpp>
-#include <iostream>
 #include <sstream>
+#include <iostream>
 
-//test
 // Make code easier to type with "using namespace"
 using namespace sf;
 using namespace std;
@@ -18,16 +17,19 @@ Sprite branches[NUM_BRANCHES];
 enum class side { LEFT, RIGHT, NONE };
 side branchPositions[NUM_BRANCHES];
 
+
 int main()
 {
-	sf::View view(sf::FloatRect(0.f, 0.f, 1920.f, 1080.f));
-
 	// Create a video mode object
 	VideoMode vm(1920, 1080);
 
 	// Create and open a window for the game
+	RenderWindow window(vm, "Timber!!!!", Style::Default);
 
-	RenderWindow window(vm, "Timber Game!!", Style::Fullscreen);
+	View view;
+	view.setSize(1920.0, 1080.0);
+	view.setCenter(1920.0 / 2.0, 1080.0 / 2.0);
+	window.setView(view);
 
 	// Create a texture to hold a graphic on the GPU
 	Texture textureBackground;
@@ -61,6 +63,7 @@ int main()
 	bool beeActive = false;
 	// How fast can the bee fly
 	float beeSpeed = 0.0f;
+
 	// make 3 cloud sprites from 1 texture
 	Texture textureCloud;
 	// Load 1 new texture
@@ -88,26 +91,28 @@ int main()
 
 	// Variables to control time itself
 	Clock clock;
+
 	// Time bar
 	RectangleShape timeBar;
 	float timeBarStartWidth = 400;
 	float timeBarHeight = 80;
 	timeBar.setSize(Vector2f(timeBarStartWidth, timeBarHeight));
 	timeBar.setFillColor(Color::Red);
-	timeBar.setPosition((1920.0 / 2) - timeBarStartWidth / 2, 980);
+	timeBar.setPosition((1920 / 2) - timeBarStartWidth / 2, 980);
 	Time gameTimeTotal;
 	float timeRemaining = 6.0f;
 	float timeBarWidthPerSecond = timeBarStartWidth / timeRemaining;
 
 	// Track whether the game is running
 	bool paused = true;
+
 	// Draw some text
 	int score = 0;
 	Text messageText;
 	Text scoreText;
 	// We need to choose a font
 	Font font;
-	font.loadFromFile("fonts/KOMIKAP_.ttf");
+	font.loadFromFile("fonts/botched.ttf");
 	// Set the font to our message
 	messageText.setFont(font);
 	scoreText.setFont(font);
@@ -198,14 +203,17 @@ int main()
 
 	while (window.isOpen())
 	{
+
 		/*
 		****************************************
 		Handle the players input
 		****************************************
 		*/
+
 		Event event;
 		while (window.pollEvent(event))
 		{
+			if (event.type == sf::Event::Closed) window.close();
 			if (event.type == Event::KeyReleased && !paused)
 			{
 				// Listen for key presses again
@@ -215,6 +223,7 @@ int main()
 					spriteAxe.getPosition().y);
 			}
 		}
+
 		if (Keyboard::isKeyPressed(Keyboard::Escape))
 		{
 			window.close();
@@ -244,8 +253,6 @@ int main()
 		// Make sure we are accepting input
 		if (acceptInput)
 		{
-			// More code here next...
-
 			// First handle pressing the right cursor key
 			if (Keyboard::isKeyPressed(Keyboard::Right))
 			{
@@ -257,7 +264,6 @@ int main()
 				timeRemaining += (2.0 / score) + .15;
 				spriteAxe.setPosition(AXE_POSITION_RIGHT,
 					spriteAxe.getPosition().y);
-
 				spritePlayer.setPosition(1200, 720);
 				// Update the branches
 				updateBranches(score);
@@ -267,19 +273,18 @@ int main()
 				logSpeedX = -5000;
 				logActive = true;
 				acceptInput = false;
-
 				// Play a chop sound
 				chop.play();
 			}
-
 			// Handle the left cursor key
+				// Handle the left cursor key
 			if (Keyboard::isKeyPressed(Keyboard::Left))
 			{
 				// Make sure the player is on the left
 				playerSide = side::LEFT;
 				score++;
 				// Add to the amount of time remaining
-				timeRemaining += (2 / score) + .15;
+				timeRemaining += (2.0 / score) + .15;
 				spriteAxe.setPosition(AXE_POSITION_LEFT,
 					spriteAxe.getPosition().y);
 				spritePlayer.setPosition(580, 720);
@@ -290,19 +295,19 @@ int main()
 				logSpeedX = 5000;
 				logActive = true;
 				acceptInput = false;
-
 				// Play a chop sound
 				chop.play();
 			}
 		}
 
+		/*
+		****************************************
+		Update the scene
+		****************************************
+		*/
+
 		if (!paused)
 		{
-			/*
-			****************************************
-			Update the scene
-			****************************************
-			*/
 			// Measure time
 			Time dt = clock.restart();
 
@@ -325,25 +330,23 @@ int main()
 					textRect.top +
 					textRect.height / 2.0f);
 				messageText.setPosition(1920 / 2.0f, 1080 / 2.0f);
-
 				// Play the out of time sound
 				outOfTime.play();
 			}
 
-			// Set up the bee
+			// Setup the bee
 			if (!beeActive)
 			{
 				// How fast is the bee
 				srand((int)time(0));
-				beeSpeed = (rand() % 200) + 200;
+				beeSpeed = (rand() % 200) + 200;  ///[200, 399]
 				// How high is the bee
 				srand((int)time(0) * 10);
-				float height = (rand() % 350) + 500;
+				float height = (rand() % 500) + 500;   ///[500,999]
 				spriteBee.setPosition(2000, height);
 				beeActive = true;
 			}
-			else
-				// Move the bee
+			else  // Move the bee
 			{
 				spriteBee.setPosition(
 					spriteBee.getPosition().x -
@@ -358,6 +361,7 @@ int main()
 			}
 
 			// Manage the clouds
+			// Cloud 1
 			if (!cloud1Active)
 			{
 				// How fast is the cloud
@@ -365,7 +369,7 @@ int main()
 				cloud1Speed = (rand() % 200);
 				// How high is the cloud
 				srand((int)time(0) * 10);
-				float height = (rand() % 150);
+				float height = (rand() % 150);   /// [0,149]
 				spriteCloud1.setPosition(-200, height);
 				cloud1Active = true;
 			}
@@ -382,7 +386,6 @@ int main()
 					cloud1Active = false;
 				}
 			}
-
 			// Cloud 2
 			if (!cloud2Active)
 			{
@@ -391,7 +394,7 @@ int main()
 				cloud2Speed = (rand() % 200);
 				// How high is the cloud
 				srand((int)time(0) * 20);
-				float height = (rand() % 300) - 150;
+				float height = (rand() % 300) - 150;  /// [-150, 149]
 				spriteCloud2.setPosition(-200, height);
 				cloud2Active = true;
 			}
@@ -415,7 +418,7 @@ int main()
 				cloud3Speed = (rand() % 200);
 				// How high is the cloud
 				srand((int)time(0) * 30);
-				float height = (rand() % 450) - 150;
+				float height = (rand() % 450) - 150;   /// [-150, 299]
 				spriteCloud3.setPosition(-200, height);
 				cloud3Active = true;
 			}
@@ -502,12 +505,12 @@ int main()
 					textRect.top + textRect.height / 2.0f);
 				messageText.setPosition(1920 / 2.0f,
 					1080 / 2.0f);
-
 				// Play the death sound
 				death.play();
 			}
 
-		}// End if(!paused)
+
+		} /// end if paused
 
 		/*
 		****************************************
@@ -515,11 +518,13 @@ int main()
 		****************************************
 		*/
 
-		window.setView(view);
-		// Clear everything from the last run frame
+		// Clear everything from the last frame
 		window.clear();
+		window.setView(view);
+
 		// Draw our game scene here
 		window.draw(spriteBackground);
+
 		// Draw the clouds
 		window.draw(spriteCloud1);
 		window.draw(spriteCloud2);
@@ -542,7 +547,7 @@ int main()
 		// Draw the gravestone
 		window.draw(spriteRIP);
 
-		// Draw the bee
+		// Draw the insect
 		window.draw(spriteBee);
 
 		// Draw the timebar
@@ -573,8 +578,8 @@ void updateBranches(int seed)
 		branchPositions[j] = branchPositions[j - 1];
 	}
 
-   // Spawn a new branch at position 0
-   // LEFT, RIGHT or NONE
+	// Spawn a new branch at position 0
+	// LEFT, RIGHT or NONE
 	srand((int)time(0) + seed);
 	int r = (rand() % 5);
 	switch (r) {
@@ -589,5 +594,3 @@ void updateBranches(int seed)
 		break;
 	}
 }
-
-
