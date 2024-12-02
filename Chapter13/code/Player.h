@@ -1,6 +1,6 @@
 #pragma once
 #include <SFML/Graphics.hpp>
-#include "TextureHolder.h"
+#include <cmath>
 
 using namespace sf;
 
@@ -47,13 +47,16 @@ private:
 	float m_Speed;
 
 
-// All our public functions will come next
+	// All our public functions will come next
 public:
 
 	Player();
 
+	// Call this at the end of every game
+	void resetPlayerStats();
+
 	void spawn(IntRect arena, Vector2f resolution, int tileSize);
-	
+
 	// Handle the player getting hit by a zombie
 	bool hit(Time timeHit);
 
@@ -105,8 +108,9 @@ public:
 	// Increase the maximum amount of health the player can have
 	void increaseHealthLevel(int amount);
 
-	void resetPlayerStats();
+
 };
 
 
 
+#pragma once

@@ -1,5 +1,5 @@
 #include "Player.h"
-#include <cmath>
+#include "TextureHolder.h"
 
 Player::Player()
 {
@@ -8,11 +8,20 @@ Player::Player()
 	m_MaxHealth = START_HEALTH;
 
 	// Associate a texture with the sprite
-	m_Sprite = Sprite(TextureHolder::GetTexture("graphics/player.png"));
+	// !!Watch this space!!
+	m_Sprite = Sprite(TextureHolder::GetTexture(
+		"graphics/player.png"));
 
 	// Set the origin of the sprite to the centre, 
 	// for smooth rotation
 	m_Sprite.setOrigin(25, 25);
+}
+
+void Player::resetPlayerStats()
+{
+	m_Speed = START_SPEED;
+	m_Health = START_HEALTH;
+	m_MaxHealth = START_HEALTH;
 }
 
 void Player::spawn(IntRect arena, Vector2f resolution, int tileSize)
@@ -33,6 +42,7 @@ void Player::spawn(IntRect arena, Vector2f resolution, int tileSize)
 	// Strore the resolution for future use
 	m_Resolution.x = resolution.x;
 	m_Resolution.y = resolution.y;
+
 }
 
 Time Player::getLastHitTime()
@@ -146,6 +156,7 @@ void Player::update(float elapsedTime, Vector2i mousePosition)
 	m_Sprite.setPosition(m_Position);
 
 
+
 	// Keep the player in the arena
 	if (m_Position.x > m_Arena.width - m_TileSize)
 	{
@@ -199,9 +210,3 @@ void Player::increaseHealthLevel(int amount)
 	}
 }
 
-void Player::resetPlayerStats()
-{
-	m_Speed = START_SPEED;
-	m_Health = START_HEALTH;
-	m_MaxHealth = START_HEALTH;
-}

@@ -16,7 +16,7 @@ int main()
 	resolution.y = VideoMode::getDesktopMode().height;
 
 	RenderWindow window(VideoMode(resolution.x, resolution.y), 
-		"Zombie Arena", Style::Default);
+		"Zombie Arena", Style::Fullscreen);
 
 	// Create a an SFML View for the main action
 	View mainView(sf::FloatRect(0, 0, resolution.x, resolution.y));

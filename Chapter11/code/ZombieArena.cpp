@@ -1,26 +1,31 @@
+#include <SFML/Graphics.hpp>
 #include "ZombieArena.h"
+#include "Player.h"
 #include "TextureHolder.h"
 #include "Bullet.h"
 #include "Pickup.h"
+
+
 using namespace sf;
 
 int main()
 {
 	// Here is the instance of TextureHolder
-	TextureHolder holder;    // Here is the instance of TextureHolder
+	TextureHolder holder;
 
 	// The game will always be in one of four states
 	enum class State { PAUSED, LEVELING_UP, GAME_OVER, PLAYING };
 	// Start with the GAME_OVER state
 	State state = State::GAME_OVER;
 
+
 	// Get the screen resolution and create an SFML window
 	Vector2f resolution;
 	resolution.x = VideoMode::getDesktopMode().width;
 	resolution.y = VideoMode::getDesktopMode().height;
 
-	RenderWindow window(VideoMode(resolution.x, resolution.y), 
-		"Zombie Arena", Style::Default);
+	RenderWindow window(VideoMode(resolution.x, resolution.y),
+		"Zombie Arena", Style::Fullscreen);
 
 	// Create a an SFML View for the main action
 	View mainView(sf::FloatRect(0, 0, resolution.x, resolution.y));
@@ -37,18 +42,20 @@ int main()
 
 	// Create an instance of the Player class
 	Player player;
+
 	// The boundaries of the arena
 	IntRect arena;
 
 	// Create the background
 	VertexArray background;
 	// Load the texture for our background vertex array
-	Texture textureBackground = TextureHolder::GetTexture("graphics/background_sheet.png");
+	Texture textureBackground = TextureHolder::GetTexture(
+		"graphics/background_sheet.png");
 
 	// Prepare for a horde of zombies
 	int numZombies;
 	int numZombiesAlive;
-	Zombie* zombies = nullptr;
+	Zombie* zombies = NULL;
 
 	// 100 bullets should do
 	Bullet bullets[100];
@@ -61,7 +68,7 @@ int main()
 	Time lastPressed;
 
 	// Hide the mouse pointer and replace it with crosshair
-	window.setMouseCursorVisible(false);
+	window.setMouseCursorVisible(true);
 	Sprite spriteCrosshair;
 	Texture textureCrosshair = TextureHolder::GetTexture("graphics/crosshair.png");
 	spriteCrosshair.setTexture(textureCrosshair);
@@ -89,7 +96,7 @@ int main()
 		while (window.pollEvent(event))
 		{
 			if (event.type == Event::KeyPressed)
-			{									
+			{
 				// Pause a game while playing
 				if (event.key.code == Keyboard::Return &&
 					state == State::PLAYING)
@@ -107,7 +114,8 @@ int main()
 				}
 
 				// Start a new game while in GAME_OVER state
-				else if (event.key.code == Keyboard::Return && state == State::GAME_OVER)
+				else if (event.key.code == Keyboard::Return &&
+					state == State::GAME_OVER)
 				{
 					state = State::LEVELING_UP;
 				}
@@ -134,13 +142,14 @@ int main()
 							// More here soon?!
 						}
 					}
+
 				}
 
 			}
 		}// End event polling
 
 
-		// Handle the player quitting
+		 // Handle the player quitting
 		if (Keyboard::isKeyPressed(Keyboard::Escape))
 		{
 			window.close();
@@ -185,68 +194,77 @@ int main()
 			{
 				player.stopRight();
 			}
-			
 			// Fire a bullet
-			if (Mouse::isButtonPressed(sf::Mouse::Left))
+			if (sf::Mouse::isButtonPressed(sf::Mouse::Left))
 			{
-				if (gameTimeTotal.asMilliseconds() - lastPressed.asMilliseconds() > 1000 / fireRate && bulletsInClip > 0)
+
+				if (gameTimeTotal.asMilliseconds()
+					- lastPressed.asMilliseconds()
+					> 1000 / fireRate && bulletsInClip > 0)
 				{
+
 					// Pass the centre of the player 
 					// and the centre of the cross-hair
 					// to the shoot function
-					bullets[currentBullet].shoot(player.getCenter().x, player.getCenter().y, mouseWorldPosition.x, mouseWorldPosition.y);
+					bullets[currentBullet].shoot(
+						player.getCenter().x, player.getCenter().y,
+						mouseWorldPosition.x, mouseWorldPosition.y);
+
 					currentBullet++;
 					if (currentBullet > 99)
 					{
 						currentBullet = 0;
 					}
 					lastPressed = gameTimeTotal;
+
 					bulletsInClip--;
 				}
+
 			}// End fire a bullet
+
 
 		}// End WASD while playing
 
-		// Handle the levelling up state
+		 // Handle the levelling up state
 		if (state == State::LEVELING_UP)
 		{
 			// Handle the player levelling up
-			if (Keyboard::isKeyPressed(Keyboard::Num1))
+			if (event.key.code == Keyboard::Num1)
 			{
 				state = State::PLAYING;
 			}
 
-			if (Keyboard::isKeyPressed(Keyboard::Num2))
+			if (event.key.code == Keyboard::Num2)
 			{
 				state = State::PLAYING;
 			}
 
-			if (Keyboard::isKeyPressed(Keyboard::Num3))
+			if (event.key.code == Keyboard::Num3)
 			{
 				state = State::PLAYING;
 			}
 
-			if (Keyboard::isKeyPressed(Keyboard::Num4))
+			if (event.key.code == Keyboard::Num4)
 			{
 				state = State::PLAYING;
 			}
 
-			if (Keyboard::isKeyPressed(Keyboard::Num5))
+			if (event.key.code == Keyboard::Num5)
 			{
 				state = State::PLAYING;
 			}
 
-			if (Keyboard::isKeyPressed(Keyboard::Num6))
+			if (event.key.code == Keyboard::Num6)
 			{
 				state = State::PLAYING;
 			}
-			
+
 			if (state == State::PLAYING)
-			{			
+			{
 				// Prepare thelevel
 				// We will modify the next two lines later
-				arena.width = 1500;
-				arena.height = 1500;
+				arena.width = 500;
+				arena.height = 500;
 				arena.left = 0;
 				arena.top = 0;
 
@@ -256,13 +274,14 @@ int main()
 
 				// Spawn the player in the middle of the arena
 				player.spawn(arena, resolution, tileSize);
-				
+
 				// Configure the pick-ups
 				healthPickup.setArena(arena);
 				ammoPickup.setArena(arena);
 
 				// Create a horde of zombies
-				numZombies = 30;
+				numZombies = 10;
+
 				// Delete the previously allocated memory (if it exists)
 				delete[] zombies;
 				zombies = createHorde(numZombies, arena);
@@ -271,13 +290,13 @@ int main()
 				// Reset the clock so there isn't a frame jump
 				clock.restart();
 			}
-		}// End leveling up
+		}// End levelling up
 
-		/*
-		****************
-		UPDATE THE FRAME
-		****************
-		*/
+		 /*
+		 ****************
+		 UPDATE THE FRAME
+		 ****************
+		 */
 		if (state == State::PLAYING)
 		{
 			// Update the delta time
@@ -291,7 +310,8 @@ int main()
 			mouseScreenPosition = Mouse::getPosition();
 
 			// Convert mouse position to world coordinates of mainView
-			mouseWorldPosition = window.mapPixelToCoords(Mouse::getPosition(), mainView);
+			mouseWorldPosition = window.mapPixelToCoords(
+				Mouse::getPosition(), mainView);
 
 			// Set the crosshair to the mouse world location
 			spriteCrosshair.setPosition(mouseWorldPosition);
@@ -333,22 +353,26 @@ int main()
 			{
 				for (int j = 0; j < numZombies; j++)
 				{
-					if (bullets[i].isInFlight() && zombies[j].isAlive())
+					if (bullets[i].isInFlight() &&
+						zombies[j].isAlive())
 					{
-						if (bullets[i].getPosition().intersects(zombies[j].getPosition()))
+						if (bullets[i].getPosition().intersects
+							(zombies[j].getPosition()))
 						{
 							// Stop the bullet
 							bullets[i].stop();
+
 							// Register the hit and see if it was a kill
-							if (zombies[j].hit())
-							{
+							if (zombies[j].hit()) {
 								// Not just a hit but a kill too
 								score += 10;
 								if (score >= hiScore)
 								{
 									hiScore = score;
 								}
+
 								numZombiesAlive--;
+
 								// When all the zombies are dead (again)
 								if (numZombiesAlive == 0) {
 									state = State::LEVELING_UP;
@@ -357,44 +381,54 @@ int main()
 
 						}
 					}
+
 				}
 			}// End zombie being shot
 
-			// Have any zombies touched the player            
+			 // Have any zombies touched the player			
 			for (int i = 0; i < numZombies; i++)
 			{
 				if (player.getPosition().intersects
-				(zombies[i].getPosition()) && zombies[i].isAlive())
+					(zombies[i].getPosition()) && zombies[i].isAlive())
 				{
+
 					if (player.hit(gameTimeTotal))
 					{
 						// More here later
 					}
+
 					if (player.getHealth() <= 0)
 					{
 						state = State::GAME_OVER;
+
 					}
 				}
 			}// End player touched
 
-			// Has the player touched health pickup
-			if (player.getPosition().intersects(healthPickup.getPosition()) && healthPickup.isSpawned())
+			 // Has the player touched health pickup
+			if (player.getPosition().intersects
+				(healthPickup.getPosition()) && healthPickup.isSpawned())
 			{
 				player.increaseHealthLevel(healthPickup.gotIt());
+
 			}
+
 			// Has the player touched ammo pickup
-			if (player.getPosition().intersects(ammoPickup.getPosition()) && ammoPickup.isSpawned())
+			if (player.getPosition().intersects
+				(ammoPickup.getPosition()) && ammoPickup.isSpawned())
 			{
 				bulletsSpare += ammoPickup.gotIt();
+
 			}
+
 
 		}// End updating the scene
 
-		/*
-		**************
-		Draw the scene
-		**************
-		*/
+		 /*
+		 **************
+		 Draw the scene
+		 **************
+		 */
 
 		if (state == State::PLAYING)
 		{
@@ -421,6 +455,7 @@ int main()
 				}
 			}
 
+
 			// Draw the player
 			window.draw(player.getSprite());
 
@@ -429,11 +464,11 @@ int main()
 			{
 				window.draw(ammoPickup.getSprite());
 			}
-
 			if (healthPickup.isSpawned())
 			{
 				window.draw(healthPickup.getSprite());
 			}
+
 
 			//Draw the crosshair
 			window.draw(spriteCrosshair);
@@ -455,9 +490,6 @@ int main()
 		window.display();
 
 	}// End game loop
-
-	// Delete the previously allocated memory (if it exists)
-	delete[] zombies;
 
 	return 0;
 }
